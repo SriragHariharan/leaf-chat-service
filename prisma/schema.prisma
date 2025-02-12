@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String          @id
+  username             String
+  profilePic           String?
+  conversationsUserOne Conversations[] @relation("UserOne")
+  conversationsUserTwo Conversations[] @relation("UserTwo")
+  messages             Messages[]
+}
+
+model Conversations {
+  id                    String     @id @default(uuid())
+  userOneID             String
+  userTwoID             String
+  lastMessageID         String?    @unique
+  lastMessage           Messages?  @relation("LastMessage", fields: [lastMessageID], references: [id])
+  lastMessageContent    String?
+  lastMessageTimestamp  DateTime?
+  unreadCountForUserOne Int        @default(0)
+  unreadCountForUserTwo Int        @default(0)
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+  messages              Messages[] @relation("ConversationMessages")
+
+  userOne User @relation("UserOne", fields: [userOneID], references: [id])
+  userTwo User @relation("UserTwo", fields: [userTwoID], references: [id])
+}
+
+model Messages {
+  id                   String        @id @default(uuid())
+  chatID               String
+  content              String
+  messageType          MessageType
+  createdAt            DateTime      @default(now())
+  status               MessageStatus
+  isDeletedForSender   Boolean       @default(false)
+  isDeletedForReceiver Boolean       @default(false)
+  senderID             String
+
+  conversation Conversations @relation("ConversationMessages", fields: [chatID], references: [id])
+  sender       User          @relation(fields: [senderID], references: [id])
+
+  lastMessageForConversation Conversations? @relation("LastMessage")
+}
+
+enum MessageType {
+  text
+  image
+}
+
+enum MessageStatus {
+  sent
+  delivered
+  read
+}
