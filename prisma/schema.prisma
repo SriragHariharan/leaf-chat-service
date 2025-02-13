@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id                   String          @id
+  userID               String          @id
   username             String
   profilePic           String?
   conversationsUserOne Conversations[] @relation("UserOne")
@@ -30,8 +30,8 @@ model Conversations {
   updatedAt             DateTime   @updatedAt
   messages              Messages[] @relation("ConversationMessages")
 
-  userOne User @relation("UserOne", fields: [userOneID], references: [id])
-  userTwo User @relation("UserTwo", fields: [userTwoID], references: [id])
+  userOne User @relation("UserOne", fields: [userOneID], references: [userID])
+  userTwo User @relation("UserTwo", fields: [userTwoID], references: [userID])
 }
 
 model Messages {
@@ -46,7 +46,7 @@ model Messages {
   senderID             String
 
   conversation Conversations @relation("ConversationMessages", fields: [chatID], references: [id])
-  sender       User          @relation(fields: [senderID], references: [id])
+  sender       User          @relation(fields: [senderID], references: [userID])
 
   lastMessageForConversation Conversations? @relation("LastMessage")
 }

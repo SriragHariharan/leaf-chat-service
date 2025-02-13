@@ -11,6 +11,8 @@ app.use((_req: Request, _res: Response, next: NextFunction) => {
   next();
 });
 
+import "./messaging/rabbitmq/user-events.consumer";
+
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
