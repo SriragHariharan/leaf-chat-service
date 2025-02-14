@@ -31,3 +31,15 @@ export function validateAccessToken(req: Request, _res: Response, next: NextFunc
         return next(createHttpError.Unauthorized("Unauthorized request" + error));
     }
 }
+
+/* verify token for inserting to the database */
+export const verifyToken = (token: string) => {
+  try {
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!)
+    return decoded;
+  } catch (error) {
+    console.error("Invalid token:", error);
+    return null;
+  }
+};
+
