@@ -41,5 +41,21 @@ class ChatService implements IChatService{
             }
         }
     }
+
+    /* get the basic profile of a user */
+    async getBasicProfile(userID: string): Promise<{username: string, profilePic: string | null, userID: string}> {
+        try {
+            const basicProfile = await this.chatRepository.getBasicProfile(userID);
+            return basicProfile;
+        }catch (error) {
+            if (error instanceof createHttpError.HttpError) {
+                console.error("HTTP Error:", error);
+                throw error;
+            } else {
+                console.error("Unexpected Error:", error);
+                throw createHttpError(500, "Internal Server Error");
+            }
+        }
+    }
 }
 export default ChatService

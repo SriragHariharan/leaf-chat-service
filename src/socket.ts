@@ -35,6 +35,24 @@ export const initializeSocket = (httpServer: HttpServer) => {
             }
         });
 
+        socket.on("typing", ({ room, token }) => {
+            console.log(token)
+            const decoded = verifyToken(token);
+            console.log(decoded, "  decoded token")
+            if (!decoded) return;
+            const userID = decoded?.aud;
+            socket.to(room).emit("userTyping", userID);
+        });
+
+        socket.on("stopTyping", ({ room, token }) => {
+            const decoded = verifyToken(token);
+            console.log(decoded, "  decoded token")
+            if (!decoded) return;
+            const userID = decoded?.aud;
+            socket.to(room).emit("userStoppedTyping", userID);
+        });
+
+
         socket.on("disconnect", () => {
             console.log(`❌ Client disconnected: ${socket.id}`);
         });

@@ -19,4 +19,10 @@ chatRouter.get("/messages/:chatID", validateAccessToken, (req: Request, res: Res
     chatController.getMessages(req, res, next);
 });
 
+/* get basic profile */
+chatRouter.get("/profile/:userID", validateAccessToken, (req: Request, res: Response, next: NextFunction) => {
+    chatController.getBasicProfile(req, res, next);
+})
+
+
 export default chatRouter;

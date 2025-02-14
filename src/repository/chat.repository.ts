@@ -86,6 +86,21 @@ class ChatRepository implements IChatRepository {
             throw createHttpError(500, "Unable to fetch messages");
         }
     }
+
+    async getBasicProfile(userID: string): Promise<{username: string, profilePic: string | null, userID: string}> {
+        try {   
+            const userDetails = await prisma.user.findUnique({
+                where: { userID },
+                select: { userID: true, username: true, profilePic: true },
+            })
+            if(!userDetails){
+                throw createHttpError(404, "User not found")
+            }
+            return userDetails;
+        } catch (error) {   
+            throw createHttpError(500, "Unable to fetch basic profile");
+        }
+    }
 }
 
 export default ChatRepository;

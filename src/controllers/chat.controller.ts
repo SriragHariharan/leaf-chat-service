@@ -32,6 +32,18 @@ class ChatController {
             next(error);
         }
     }
+
+    /* get basic profile */
+    async getBasicProfile(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userID = req.params?.userID;
+            if(!userID) throw createHttpError(400, "User ID not provided");
+            const basicProfile = await this.chatService.getBasicProfile(userID);
+            return res.status(201).json({ success: true, message: "Basic profile fetched", data: { profile: basicProfile }});
+        } catch (error) {
+            next(error);
+        }       
+    }
 }
 
 export default ChatController;
