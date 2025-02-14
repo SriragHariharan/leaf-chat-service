@@ -1,6 +1,7 @@
 import createHttpError from "http-errors";
 import { IChatRepository } from "../interfaces/IChatRepository";
 import prisma from "../helpers/prisma";
+import { Message } from "../interfaces/message.interface";
 
 class ChatRepository implements IChatRepository {
     constructor() {}
@@ -70,6 +71,19 @@ class ChatRepository implements IChatRepository {
                 console.error("Unexpected Error:", error);
                 throw createHttpError(500, "Internal Server Error");
             }
+        }
+    }
+
+    /* fetch all messages based on the chatID(conversation table ID) */
+    async getMessages(chatID: string): Promise<Message[]> {
+        try {
+            const messages = await prisma.messages.findMany({
+                where: { chatID },
+                orderBy: { createdAt: "asc" }
+            });
+            return messages;
+        } catch (error) {
+            throw createHttpError(500, "Unable to fetch messages");
         }
     }
 }

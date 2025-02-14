@@ -15,4 +15,8 @@ chatRouter.get("/conversationID/:userID", validateAccessToken, (req: Request, re
     chatController.getConversationID(req, res, next);
 });
 
+chatRouter.get("/messages/:chatID", validateAccessToken, (req: Request, res: Response, next: NextFunction) => {
+    chatController.getMessages(req, res, next);
+});
+
 export default chatRouter;

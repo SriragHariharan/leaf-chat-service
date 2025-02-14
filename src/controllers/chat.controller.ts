@@ -20,6 +20,18 @@ class ChatController {
             next(error);
         }
     }
+
+    /* get messages for a chatID */
+    async getMessages(req: Request, res: Response, next: NextFunction) {
+        try {
+            const chatID = req.params?.chatID;
+            if(!chatID) throw createHttpError(400, "Chat ID not provided");
+            const messages = await this.chatService.getMessages(chatID);
+            return res.status(201).json({ success: true, message: "Messages fetched", data: { messages }});
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default ChatController;
