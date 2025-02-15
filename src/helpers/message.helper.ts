@@ -30,3 +30,23 @@ export const saveMessage = async (chatID: string, content: string, senderID: str
     throw error;
   }
 };
+
+/* when a user visits the room, update all the messages to him as read */
+/* i.e. update the message status of all messages where senderID not equall to his userID */
+export const updateMessageToRead = async (chatID: string, userID: string) => {
+  try {
+    await prisma.messages.updateMany({
+      where: {
+        chatID,
+        senderID: { not: userID },
+      },
+      data: {
+        status: "read",
+      },
+    });
+  } catch (error) {
+    console.error("Error updating messages to read:", error);
+    throw error;
+  }
+}
+

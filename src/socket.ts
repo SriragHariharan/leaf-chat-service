@@ -1,7 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { Server as HttpServer } from "http";
 import { verifyToken } from "./helpers/jwt.helper";
-import { saveMessage } from "./helpers/message.helper";
+import { saveMessage, updateMessageToRead } from "./helpers/message.helper";
 import redisHelper from "./helpers/redis.helper";
 
 export const initializeSocket = (httpServer: HttpServer) => {
@@ -16,27 +16,31 @@ export const initializeSocket = (httpServer: HttpServer) => {
         console.log(`⚡ New client connected: ${socket.id}`);
         
         /* make a user join a room */
-        socket.on("joinRoom", (room: string, token: string) => {
+        socket.on("joinRoom", async (room: string, token: string, friendID: string) => {
             // Verify user token
             const decoded = verifyToken(token);
             if (!decoded) return;
 
-            const userID = decoded?.aud;
+            const userID = decoded.aud;
             socket.join(room);
-            
-            // Store room and userID in the socket object
+
+            // Store userID in the socket object
             socket.room = room;
             socket.userID = userID;
 
-            // Add user ID to Redis set(to add double tick functionality ie checking user is in room or not)
-            redisHelper.sadd(`chat:${room}`, userID).then((count) => {
-                console.log(`✅ User ${userID} joined room: ${room}. Added ${count} new member.`);
-            });
-
+            // Add user ID to Redis set
+            await redisHelper.sadd(`chat:${room}`, userID);
             console.log(`✅ User ${userID} joined room: ${room}`);
+
+            // Update all messages in the chat to "read"
+            updateMessageToRead(room, userID);
+
+            // Find the friend's socket
+            io.to(room).emit("friendReadMessages", { userID });
         });
 
-        socket.on("sendMessage", async ({ room, message, token }: { room: string; message: string; token: string }) => {
+
+        socket.on("sendMessage", async ({ room, message, token, friendID }: { room: string; message: string; token: string, friendID: string }) => {
             try {
                 const decoded = verifyToken(token);
                 console.log(decoded, "  decoded token")
