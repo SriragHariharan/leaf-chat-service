@@ -1,7 +1,7 @@
 import prisma from "./prisma";
 
 /* this message helper is used to save a new message to the database. */
-export const saveMessage = async (chatID: string, content: string, senderID: string) => {
+export const saveMessage = async (chatID: string, content: string, senderID: string, isInChat:boolean) => {
   try {
     // Save message to the database
     const newMessage = await prisma.messages.create({
@@ -9,7 +9,7 @@ export const saveMessage = async (chatID: string, content: string, senderID: str
         chatID,
         content,
         messageType: "text",
-        status: "sent",
+        status: isInChat ? "read" : "sent",
         senderID,
       },
     });

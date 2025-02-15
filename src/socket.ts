@@ -47,7 +47,13 @@ export const initializeSocket = (httpServer: HttpServer) => {
                 if (!decoded) return;
 
                 const senderID = decoded?.aud;
-                const newMessage = await saveMessage(room, message, senderID);
+
+                // Check if the friend is in the chat by checking Redis set
+                const isFriendInChat = await redisHelper.sismember(`chat:${room}`, friendID);
+                //if friend stays in chat mark as read while sending itself
+                const isInChat = Boolean(isFriendInChat);
+
+                const newMessage = await saveMessage(room, message, senderID, isInChat);
 
                 console.log(`Message from ${senderID} in room ${room}: ${message}`);
                 io.to(room).emit("receiveMessage", newMessage);

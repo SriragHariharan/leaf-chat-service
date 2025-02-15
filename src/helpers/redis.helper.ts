@@ -44,6 +44,10 @@ class RedisHelper {
         return await this.client.sRem(key, value);
     }
 
+    async sismember(key: string, member: string): Promise<boolean> {
+        return await this.client.sIsMember(key, member);
+    }
+
 
     // Close the Redis connection
     async disconnect(): Promise<void> {
