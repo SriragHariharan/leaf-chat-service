@@ -24,5 +24,9 @@ chatRouter.get("/profile/:userID", validateAccessToken, (req: Request, res: Resp
     chatController.getBasicProfile(req, res, next);
 })
 
+chatRouter.get("/conversations", validateAccessToken, (req: Request, res: Response, next: NextFunction) => {
+    chatController.getConversations(req, res, next); 
+})
+
 
 export default chatRouter;

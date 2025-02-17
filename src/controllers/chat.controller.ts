@@ -44,6 +44,18 @@ class ChatController {
             next(error);
         }       
     }
+
+    /* get all conversations for a user */
+    async getConversations(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userID = req.user?.aud;
+            if(!userID) throw createHttpError(400, "User ID not provided");
+            const conversations = await this.chatService.getConversations(userID);
+            return res.status(201).json({ success: true, message: "Conversations fetched", data: { conversations }});
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default ChatController;

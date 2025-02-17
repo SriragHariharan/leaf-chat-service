@@ -57,5 +57,20 @@ class ChatService implements IChatService{
             }
         }
     }
+
+    async getConversations(userID: string): Promise<any> {
+        try {
+            const conversations = await this.chatRepository.getConversations(userID);
+            return conversations;
+        }catch (error) {
+            if (error instanceof createHttpError.HttpError) {
+                console.error("HTTP Error:", error);
+                throw error;
+            } else {
+                console.error("Unexpected Error:", error);
+                throw createHttpError(500, "Internal Server Error");
+            }
+        }
+    }
 }
 export default ChatService

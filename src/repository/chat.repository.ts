@@ -101,6 +101,68 @@ class ChatRepository implements IChatRepository {
             throw createHttpError(500, "Unable to fetch basic profile");
         }
     }
+
+    /* async get conversations */
+    async getConversations(userID: string): Promise<any> {
+        try {
+            const conversations = await prisma.conversations.findMany({
+            where: {
+                OR: [{ userOneID: userID }, { userTwoID: userID }],
+            },
+            select: {
+                id: true,
+                lastMessageContent: true,
+                lastMessageTimestamp: true,
+                unreadCountForUserOne: true,
+                unreadCountForUserTwo: true,
+                createdAt: true,
+                updatedAt: true,
+                // Fetch the friend details
+                userOneID: true,
+                userTwoID: true,
+                userOne: {
+                select: {
+                    userID: true,
+                    username: true,
+                    profilePic: true,
+                },
+                },
+                userTwo: {
+                select: {
+                    userID: true,
+                    username: true,
+                    profilePic: true,
+                },
+                },
+            },
+            });
+
+            // Transform the data to return friend details based on who the user is
+            const formattedConversations = conversations.map((conversation) => {
+            const isUserOne = conversation.userOneID === userID;
+            const friend = isUserOne ? conversation.userTwo : conversation.userOne;
+
+            return {
+                chatID: conversation.id,
+                friendID: friend.userID,
+                friendUsername: friend.username,
+                friendProfilePic: friend.profilePic,
+                lastMessage: conversation.lastMessageContent,
+                lastMessageTimestamp: conversation.lastMessageTimestamp,
+                unreadCount: isUserOne
+                ? conversation.unreadCountForUserOne
+                : conversation.unreadCountForUserTwo,
+                createdAt: conversation.createdAt,
+                updatedAt: conversation.updatedAt,
+            };
+            });
+
+            return formattedConversations;
+        } catch (error) {
+            console.error("Error fetching conversations:", error);
+            throw createHttpError(500, "Unable to get conversations");
+        }
+    }
 }
 
 export default ChatRepository;
