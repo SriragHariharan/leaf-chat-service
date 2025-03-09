@@ -51,7 +51,7 @@ export const verifyToken = (token: string) => {
 
     const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET!);
 
-    logger.info(`Successfully verified token. UserID: ${decoded?.aud}`, { layer: "helper" });
+    logger.info(`Successfully verified token. UserID: ${decoded}`, { layer: "helper" });
     return decoded;
   } catch (error) {
     logger.error(`Error in verifyToken: Invalid token.`, { error, layer: "helper" });
