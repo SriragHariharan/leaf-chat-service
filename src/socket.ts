@@ -13,18 +13,19 @@ function isJwtPayload(token: string | JwtPayload): token is JwtPayload {
 export const initializeSocket = (httpServer: HttpServer) => {
     const io = new Server(httpServer, {
         cors: {
-            origin: "*", // Change this in production
-            methods: ["GET", "POST"],
+            origin: "*",
+            methods: ["GET", "POST", "PUT", "DELETE"],
+            // credentials: true
         },
+        path: "/socket.io"
     });
-
     io.on("connection", (socket: Socket) => {
         console.log(`⚡ New client connected: ${socket.id}`);
 
         /* Make a user join a room */
         socket.on("joinRoom", async (room: string, token: string, friendID: string) => {
             const decoded = verifyToken(token);
-            if (!isJwtPayload(decoded)) {
+            if (decoded === null || !isJwtPayload(decoded)) {
                 console.error("Invalid token: decoded token is not a JwtPayload");
                 return;
             }
@@ -50,7 +51,7 @@ export const initializeSocket = (httpServer: HttpServer) => {
         socket.on("sendMessage", async ({ room, message, token, friendID }: { room: string; message: string; token: string; friendID: string }) => {
             try {
                 const decoded = verifyToken(token);
-                if (!isJwtPayload(decoded)) {
+                if (decoded === null || !isJwtPayload(decoded)) {
                     console.error("Invalid token: decoded token is not a JwtPayload");
                     return;
                 }
@@ -73,7 +74,7 @@ export const initializeSocket = (httpServer: HttpServer) => {
 
         socket.on("typing", ({ room, token }) => {
             const decoded = verifyToken(token);
-            if (!isJwtPayload(decoded)) {
+            if (decoded === null || !isJwtPayload(decoded)) {
                 console.error("Invalid token: decoded token is not a JwtPayload");
                 return;
             }
@@ -84,7 +85,7 @@ export const initializeSocket = (httpServer: HttpServer) => {
 
         socket.on("stopTyping", ({ room, token }) => {
             const decoded = verifyToken(token);
-            if (!isJwtPayload(decoded)) {
+            if (decoded === null || !isJwtPayload(decoded)) {
                 console.error("Invalid token: decoded token is not a JwtPayload");
                 return;
             }
